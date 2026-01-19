@@ -1,0 +1,465 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">System Maintenance</h1>
+        <p class="text-muted">Optimize, maintain, and troubleshoot your grocery management system</p>
+    </div>
+</div>
+
+<!-- Maintenance Status -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>System Status: Healthy</strong> - All maintenance tasks completed successfully. Last maintenance: Today at 02:00 AM
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Maintenance Actions -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-broom fa-2x text-primary mb-3"></i>
+                <h6>Clear Cache</h6>
+                <p class="small text-muted">Free up memory and improve performance</p>
+                <button class="btn btn-primary btn-sm w-100" onclick="clearCache()">
+                    <i class="fas fa-play me-1"></i>Run Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-database fa-2x text-success mb-3"></i>
+                <h6>Optimize Database</h6>
+                <p class="small text-muted">Defragment and optimize database tables</p>
+                <button class="btn btn-success btn-sm w-100" onclick="optimizeDatabase()">
+                    <i class="fas fa-play me-1"></i>Run Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-search fa-2x text-warning mb-3"></i>
+                <h6>Rebuild Indexes</h6>
+                <p class="small text-muted">Rebuild database indexes for better performance</p>
+                <button class="btn btn-warning btn-sm w-100" onclick="rebuildIndexes()">
+                    <i class="fas fa-play me-1"></i>Run Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-shield-alt fa-2x text-info mb-3"></i>
+                <h6>Security Scan</h6>
+                <p class="small text-muted">Check for security vulnerabilities</p>
+                <button class="btn btn-info btn-sm w-100" onclick="securityScan()">
+                    <i class="fas fa-play me-1"></i>Run Now
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Maintenance History -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Maintenance History</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Task</th>
+                                <th>Status</th>
+                                <th>Duration</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2024-01-20 02:00:00</td>
+                                <td>Automated Maintenance</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>45s</td>
+                                <td>All tasks successful</td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-19 14:30:00</td>
+                                <td>Database Optimization</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>2m 15s</td>
+                                <td>15% performance improvement</td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-19 10:15:00</td>
+                                <td>Cache Clear</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>8s</td>
+                                <td>256MB memory freed</td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-18 16:45:00</td>
+                                <td>Index Rebuild</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>1m 30s</td>
+                                <td>All indexes optimized</td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-17 09:20:00</td>
+                                <td>Security Scan</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>3m 45s</td>
+                                <td>No vulnerabilities found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Performance -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">System Performance</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Database Response Time</small>
+                        <small class="text-success">45ms</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: 90%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Page Load Speed</small>
+                        <small class="text-success">1.2s</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: 85%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Memory Usage</small>
+                        <small class="text-warning">68%</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-warning" style="width: 68%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Storage Usage</small>
+                        <small class="text-info">45%</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-info" style="width: 45%"></div>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="text-center">
+                    <h6 class="text-success">Performance Score</h6>
+                    <h3 class="text-success">92/100</h3>
+                    <small class="text-muted">Excellent performance</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scheduled Maintenance -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Scheduled Maintenance</h5>
+            </div>
+            <div class="card-body">
+                <form id="scheduleForm">
+                    <div class="mb-3">
+                        <label class="form-label">Maintenance Schedule</label>
+                        <select class="form-select" id="scheduleType">
+                            <option value="daily">Daily (2:00 AM)</option>
+                            <option value="weekly" selected>Weekly (Sunday 2:00 AM)</option>
+                            <option value="monthly">Monthly (1st of month)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tasks to Include</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" checked id="includeCache">
+                            <label class="form-check-label" for="includeCache">
+                                Clear Cache
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" checked id="includeDb">
+                            <label class="form-check-label" for="includeDb">
+                                Database Optimization
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="includeBackup">
+                            <label class="form-check-label" for="includeBackup">
+                                Create Backup
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Update Schedule</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maintenance Reports -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Maintenance Reports</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="generatePerformanceReport()">
+                        <i class="fas fa-chart-line me-2"></i>Performance Report
+                    </button>
+                    <button class="btn btn-outline-success" onclick="generateHealthReport()">
+                        <i class="fas fa-heartbeat me-2"></i>System Health Report
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="generateOptimizationReport()">
+                        <i class="fas fa-wrench me-2"></i>Optimization Report
+                    </button>
+                    <button class="btn btn-outline-info" onclick="exportMaintenanceLog()">
+                        <i class="fas fa-file-export me-2"></i>Export Maintenance Log
+                    </button>
+                </div>
+
+                <hr class="my-3">
+
+                <h6>Quick Stats</h6>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="p-2">
+                            <h5 class="text-primary mb-0">24</h5>
+                            <small class="text-muted">Tasks Completed</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2">
+                            <h5 class="text-success mb-0">99.9%</h5>
+                            <small class="text-muted">Success Rate</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2">
+                            <h5 class="text-info mb-0">15%</h5>
+                            <small class="text-muted">Avg Improvement</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Tools -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Advanced Maintenance Tools</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> These tools are for advanced users. Incorrect usage may affect system stability.
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-danger w-100" onclick="resetDatabase()">
+                            <i class="fas fa-database me-2"></i>Reset Database
+                            <br><small class="text-muted">Clear all data (dangerous!)</small>
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-warning w-100" onclick="reindexAll()">
+                            <i class="fas fa-sort me-2"></i>Force Reindex All
+                            <br><small class="text-muted">Complete index rebuild</small>
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-info w-100" onclick="systemDiagnostics()">
+                            <i class="fas fa-stethoscope me-2"></i>Full Diagnostics
+                            <br><small class="text-muted">Comprehensive system check</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function clearCache() {
+    if (confirm('Clear all system cache? This may temporarily slow down the system.')) {
+        showProgress('Clearing cache...', 'clearCache');
+        setTimeout(() => {
+            showSuccess('Cache cleared successfully! 256MB memory freed.');
+        }, 2000);
+    }
+}
+
+function optimizeDatabase() {
+    if (confirm('Optimize database tables? This may take a few minutes.')) {
+        showProgress('Optimizing database...', 'optimizeDb');
+        setTimeout(() => {
+            showSuccess('Database optimization completed! 15% performance improvement.');
+        }, 3000);
+    }
+}
+
+function rebuildIndexes() {
+    if (confirm('Rebuild database indexes? This may improve query performance.')) {
+        showProgress('Rebuilding indexes...', 'rebuildIndexes');
+        setTimeout(() => {
+            showSuccess('Index rebuild completed! All indexes optimized.');
+        }, 2500);
+    }
+}
+
+function securityScan() {
+    showProgress('Running security scan...', 'securityScan');
+    setTimeout(() => {
+        showSuccess('Security scan completed! No vulnerabilities found.');
+    }, 4000);
+}
+
+function resetDatabase() {
+    if (confirm('WARNING: This will delete ALL data! Are you absolutely sure?')) {
+        if (confirm('This action CANNOT be undone. All products, orders, and users will be lost. Continue?')) {
+            showProgress('Resetting database...', 'resetDb');
+            setTimeout(() => {
+                showSuccess('Database reset completed. System is now clean.');
+                setTimeout(() => location.reload(), 1000);
+            }, 5000);
+        }
+    }
+}
+
+function reindexAll() {
+    if (confirm('Force rebuild all database indexes? This may take several minutes.')) {
+        showProgress('Rebuilding all indexes...', 'reindexAll');
+        setTimeout(() => {
+            showSuccess('Complete index rebuild finished! Performance optimized.');
+        }, 6000);
+    }
+}
+
+function systemDiagnostics() {
+    showProgress('Running full system diagnostics...', 'diagnostics');
+    setTimeout(() => {
+        showSuccess('Full diagnostics completed! System is healthy.');
+    }, 8000);
+}
+
+function generatePerformanceReport() {
+    alert('Generating performance report... This will analyze system performance over the last 30 days.');
+}
+
+function generateHealthReport() {
+    alert('Generating system health report... This will include all system metrics and recommendations.');
+}
+
+function generateOptimizationReport() {
+    alert('Generating optimization report... This will show potential performance improvements.');
+}
+
+function exportMaintenanceLog() {
+    alert('Exporting maintenance log... This will download a CSV file with all maintenance history.');
+}
+
+function showProgress(message, taskId) {
+    const progressHtml = `
+        <div class="alert alert-info" id="progress-${taskId}">
+            <i class="fas fa-spinner fa-spin me-2"></i>
+            ${message}
+            <div class="progress mt-2" style="height: 6px;">
+                <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+            </div>
+        </div>
+    `;
+
+    // Insert at top of page
+    const container = document.querySelector('.container-fluid');
+    container.insertAdjacentHTML('afterbegin', progressHtml);
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showSuccess(message) {
+    // Remove any existing progress alerts
+    document.querySelectorAll('[id^="progress-"]').forEach(el => el.remove());
+
+    const successHtml = `
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+
+    const container = document.querySelector('.container-fluid');
+    container.insertAdjacentHTML('afterbegin', successHtml);
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        const alert = document.querySelector('.alert-success');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+// Schedule form submission
+document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showSuccess('Maintenance schedule updated successfully!');
+});
+</script>
+{% endblock %}

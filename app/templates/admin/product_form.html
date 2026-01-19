@@ -1,0 +1,96 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    {% if product %}Edit Product{% else %}Add New Product{% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            {{ form.category.label(class="form-label") }}
+                            {{ form.category(class="form-select" + (" is-invalid" if form.category.errors else "")) }}
+                            {% if form.category.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.category.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.price.label(class="form-label") }}
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.price(class="form-control" + (" is-invalid" if form.price.errors else ""), step="0.01", min="0") }}
+                            </div>
+                            {% if form.price.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.price.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            {{ form.stock_qty.label(class="form-label") }}
+                            {{ form.stock_qty(class="form-control" + (" is-invalid" if form.stock_qty.errors else ""), min="0") }}
+                            {% if form.stock_qty.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.stock_qty.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.image.label(class="form-label") }}
+                        {{ form.image(class="form-control" + (" is-invalid" if form.image.errors else "")) }}
+                        {% if form.image.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.image.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            {% if product and product.image_url %}
+                                <div class="mt-2">
+                                    <strong>Current Image:</strong><br>
+                                    <img src="{{ product.image_url }}" alt="Current product image"
+                                         class="img-thumbnail mt-2" style="max-width: 200px;">
+                                </div>
+                            {% endif %}
+                            Upload a new image to replace the current one. Supported formats: PNG, JPG, JPEG, GIF.
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> {{ form.submit.label.text }}
+                        </button>
+                        <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

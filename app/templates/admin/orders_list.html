@@ -1,0 +1,133 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">Orders</h1>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Employee</label>
+                <input type="text" class="form-control" name="employee" value="{{ employee_filter }}"
+                       placeholder="Search by employee...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Start Date</label>
+                <input type="date" class="form-control" name="start_date" value="{{ start_date }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">End Date</label>
+                <input type="date" class="form-control" name="end_date" value="{{ end_date }}">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-search"></i> Filter
+                </button>
+                <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card">
+    <div class="card-body p-0">
+        {% if orders.items %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Employee</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Payment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders.items %}
+                            <tr>
+                                <td>
+                                    <strong>#{{ order.id }}</strong>
+                                </td>
+                                <td>{{ order.employee.username }}</td>
+                                <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ order.order_items|length }} item{{ 's' if order.order_items|length != 1 else '' }}</td>
+                                <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if order.payment_method == 'cash' else 'info' }}">
+                                        {{ order.payment_method|upper }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('orders.invoice', order_id=order.id) }}"
+                                       class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="fas fa-receipt"></i> Invoice
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if orders.has_prev or orders.has_next %}
+                <div class="card-footer">
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if orders.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin.orders', page=orders.prev_num, employee=employee_filter, start_date=start_date, end_date=end_date) }}">
+                                        Previous
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% for page_num in orders.iter_pages() %}
+                                {% if page_num %}
+                                    <li class="page-item {{ 'active' if page_num == orders.page else '' }}">
+                                        <a class="page-link" href="{{ url_for('admin.orders', page=page_num, employee=employee_filter, start_date=start_date, end_date=end_date) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if orders.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin.orders', page=orders.next_num, employee=employee_filter, start_date=start_date, end_date=end_date) }}">
+                                        Next
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No orders found</h5>
+                {% if employee_filter or start_date or end_date %}
+                    <p>Try adjusting your search criteria.</p>
+                    <a href="{{ url_for('admin.orders') }}" class="btn btn-primary">Clear Filters</a>
+                {% else %}
+                    <p>No orders have been placed yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

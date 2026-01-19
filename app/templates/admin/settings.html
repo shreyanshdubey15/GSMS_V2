@@ -1,0 +1,350 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">System Settings</h1>
+        <p class="text-muted">Configure system preferences and settings</p>
+    </div>
+</div>
+
+<!-- Settings Tabs -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">General</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="business-tab" data-bs-toggle="tab" data-bs-target="#business" type="button" role="tab">Business</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">Security</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">Notifications</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button" role="tab">Advanced</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="settingsTabContent">
+
+                    <!-- General Settings -->
+                    <div class="tab-pane fade show active" id="general" role="tabpanel">
+                        <h5 class="mb-3">General Settings</h5>
+                        <form>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="storeName" class="form-label">Store Name</label>
+                                    <input type="text" class="form-control" id="storeName" value="Grocery Store V2">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="storeEmail" class="form-label">Store Email</label>
+                                    <input type="email" class="form-control" id="storeEmail" value="contact@grocerystore.com">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="storePhone" class="form-label">Store Phone</label>
+                                    <input type="tel" class="form-control" id="storePhone" value="(555) 123-4567">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="timezone" class="form-label">Timezone</label>
+                                    <select class="form-select" id="timezone">
+                                        <option selected>UTC</option>
+                                        <option>EST</option>
+                                        <option>PST</option>
+                                        <option>IST</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="storeAddress" class="form-label">Store Address</label>
+                                    <textarea class="form-control" id="storeAddress" rows="2">123 Main Street, City, State 12345</textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save General Settings</button>
+                        </form>
+                    </div>
+
+                    <!-- Business Settings -->
+                    <div class="tab-pane fade" id="business" role="tabpanel">
+                        <h5 class="mb-3">Business Settings</h5>
+                        <form>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="currency" class="form-label">Primary Currency</label>
+                                    <select class="form-select" id="currency">
+                                        <option selected value="USD">USD ($)</option>
+                                        <option value="INR">INR (₹)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="taxRate" class="form-label">Tax Rate (%)</label>
+                                    <input type="number" class="form-control" id="taxRate" value="8.5" step="0.1">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="lowStockThreshold" class="form-label">Low Stock Alert Threshold</label>
+                                    <input type="number" class="form-control" id="lowStockThreshold" value="10">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="itemsPerPage" class="form-label">Items Per Page</label>
+                                    <input type="number" class="form-control" id="itemsPerPage" value="10">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="businessHours" class="form-label">Business Hours</label>
+                                    <input type="text" class="form-control" id="businessHours" value="9:00 AM - 9:00 PM">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="reorderPoint" class="form-label">Auto Reorder Point</label>
+                                    <input type="number" class="form-control" id="reorderPoint" value="5">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Business Settings</button>
+                        </form>
+                    </div>
+
+                    <!-- Security Settings -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <h5 class="mb-3">Security Settings</h5>
+                        <form>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="sessionTimeout" class="form-label">Session Timeout (minutes)</label>
+                                    <input type="number" class="form-control" id="sessionTimeout" value="60">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="passwordMinLength" class="form-label">Minimum Password Length</label>
+                                    <input type="number" class="form-control" id="passwordMinLength" value="8">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="twoFactorAuth" checked>
+                                        <label class="form-check-label" for="twoFactorAuth">
+                                            Enable Two-Factor Authentication
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="passwordExpiry" checked>
+                                        <label class="form-check-label" for="passwordExpiry">
+                                            Password Expiry (90 days)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="loginNotifications">
+                                        <label class="form-check-label" for="loginNotifications">
+                                            Login Attempt Notifications
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="auditLog" checked>
+                                        <label class="form-check-label" for="auditLog">
+                                            Enable Audit Logging
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save Security Settings</button>
+                        </form>
+                    </div>
+
+                    <!-- Notifications Settings -->
+                    <div class="tab-pane fade" id="notifications" role="tabpanel">
+                        <h5 class="mb-3">Notification Settings</h5>
+                        <form>
+                            <h6 class="mb-3">Email Notifications</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="lowStockEmail" checked>
+                                        <label class="form-check-label" for="lowStockEmail">
+                                            Low Stock Alerts
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dailyReportEmail">
+                                        <label class="form-check-label" for="dailyReportEmail">
+                                            Daily Sales Report
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="weeklyReportEmail" checked>
+                                        <label class="form-check-label" for="weeklyReportEmail">
+                                            Weekly Summary Report
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="systemAlertsEmail" checked>
+                                        <label class="form-check-label" for="systemAlertsEmail">
+                                            System Alerts
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="mb-3 mt-4">In-App Notifications</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="browserNotifications">
+                                        <label class="form-check-label" for="browserNotifications">
+                                            Browser Notifications
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="soundAlerts" checked>
+                                        <label class="form-check-label" for="soundAlerts">
+                                            Sound Alerts
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Save Notification Settings</button>
+                        </form>
+                    </div>
+
+                    <!-- Advanced Settings -->
+                    <div class="tab-pane fade" id="advanced" role="tabpanel">
+                        <h5 class="mb-3">Advanced Settings</h5>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Warning:</strong> These settings are for advanced users. Incorrect configuration may affect system performance.
+                        </div>
+
+                        <form>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="dbConnectionPool" class="form-label">Database Connection Pool Size</label>
+                                    <input type="number" class="form-control" id="dbConnectionPool" value="10">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cacheTimeout" class="form-label">Cache Timeout (seconds)</label>
+                                    <input type="number" class="form-control" id="cacheTimeout" value="300">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="logLevel" class="form-label">Log Level</label>
+                                    <select class="form-select" id="logLevel">
+                                        <option value="DEBUG">DEBUG</option>
+                                        <option value="INFO" selected>INFO</option>
+                                        <option value="WARNING">WARNING</option>
+                                        <option value="ERROR">ERROR</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="backupFrequency" class="form-label">Auto Backup Frequency</label>
+                                    <select class="form-select" id="backupFrequency">
+                                        <option value="daily" selected>Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="maintenanceMode">
+                                        <label class="form-check-label" for="maintenanceMode">
+                                            Enable Maintenance Mode
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-danger">Save Advanced Settings</button>
+                        </form>
+
+                        <hr class="my-4">
+
+                        <h6 class="mb-3">System Maintenance</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button class="btn btn-warning w-100 mb-2" onclick="clearCache()">
+                                    <i class="fas fa-broom me-2"></i>Clear Cache
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-info w-100 mb-2" onclick="optimizeDatabase()">
+                                    <i class="fas fa-database me-2"></i>Optimize DB
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-danger w-100 mb-2" onclick="resetSettings()">
+                                    <i class="fas fa-undo me-2"></i>Reset to Defaults
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function clearCache() {
+    if (confirm('Clear all system cache? This may temporarily slow down the system.')) {
+        alert('Cache cleared successfully!');
+    }
+}
+
+function optimizeDatabase() {
+    if (confirm('Optimize database tables? This may take a few minutes.')) {
+        alert('Database optimization completed!');
+    }
+}
+
+function resetSettings() {
+    if (confirm('Reset all settings to default values? This cannot be undone.')) {
+        alert('Settings reset to defaults!');
+        location.reload();
+    }
+}
+
+// Save settings with AJAX (placeholder)
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Settings saved successfully!');
+
+        // Here you would send the form data to the server
+        // const formData = new FormData(this);
+        // fetch('/admin/save-settings', { method: 'POST', body: formData });
+    });
+});
+</script>
+{% endblock %}

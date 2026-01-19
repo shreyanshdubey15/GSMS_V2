@@ -1,0 +1,252 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">User Management</h1>
+        <p class="text-muted">Manage users, roles, and permissions</p>
+    </div>
+</div>
+
+<!-- User Statistics -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">Total Users</h6>
+                <h2 class="mb-0">{{ users|length }}</h2>
+                <small>All registered users</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">Admins</h6>
+                <h2 class="mb-0">{{ admin_count }}</h2>
+                <small>System administrators</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title">Employees</h6>
+                <h2 class="mb-0">{{ employee_count }}</h2>
+                <small>Store employees</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">User Accounts</h5>
+                <button class="btn btn-primary btn-sm" onclick="addUser()">
+                    <i class="fas fa-user-plus me-1"></i>Add User
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Last Login</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ user.username }}</strong>
+                                        {% if user.role == 'admin' %}
+                                            <span class="badge bg-danger ms-1">Admin</span>
+                                        {% else %}
+                                            <span class="badge bg-info ms-1">Employee</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.role|title }}</td>
+                                    <td>
+                                        <span class="badge bg-success">Active</span>
+                                    </td>
+                                    <td>{{ "Today" if user.username == 'admin' else "2 days ago" }}</td>
+                                    <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="editUser({{ user.id }}, '{{ user.username }}')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning" onclick="resetPassword({{ user.id }}, '{{ user.username }}')">
+                                                <i class="fas fa-key"></i>
+                                            </button>
+                                            {% if user.username != 'admin' %}
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteUser({{ user.id }}, '{{ user.username }}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Roles and Permissions -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Role Permissions</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="rolesAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#adminRole">
+                                <i class="fas fa-crown text-warning me-2"></i>Administrator
+                            </button>
+                        </h2>
+                        <div id="adminRole" class="accordion-collapse collapse show" data-bs-parent="#rolesAccordion">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Full system access</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>User management</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>System configuration</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Data backup & restore</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Financial reports</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Advanced analytics</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#employeeRole">
+                                <i class="fas fa-user text-info me-2"></i>Employee
+                            </button>
+                        </h2>
+                        <div id="employeeRole" class="accordion-collapse collapse" data-bs-parent="#rolesAccordion">
+                            <div class="accordion-body">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Product browsing</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Order creation</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Cart management</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Order history</li>
+                                    <li><i class="fas fa-times text-danger me-2"></i>Admin functions</li>
+                                    <li><i class="fas fa-times text-danger me-2"></i>System settings</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Activity Summary -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">User Activity Summary</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="userActivityChart" width="400" height="200"></canvas>
+
+                <hr class="my-4">
+
+                <h6>Recent Activity</h6>
+                <div class="mb-2">
+                    <small class="text-muted">John Doe - 5 minutes ago</small>
+                    <p class="mb-1">Created order #1234</p>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Jane Smith - 15 minutes ago</small>
+                    <p class="mb-1">Updated inventory</p>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Bob Johnson - 1 hour ago</small>
+                    <p class="mb-1">Logged in to system</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // User Activity Chart
+    const ctx = document.getElementById('userActivityChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Active Users',
+                data: [12, 15, 18, 14, 22, 8, 6],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Weekly User Activity'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+
+function addUser() {
+    alert('Add user feature coming soon! This will allow creating new user accounts with role assignment.');
+}
+
+function editUser(userId, username) {
+    alert(`Edit user: ${username} (ID: ${userId}). This will allow updating user information and roles.`);
+}
+
+function resetPassword(userId, username) {
+    if (confirm(`Reset password for ${username}? A temporary password will be generated.`)) {
+        alert(`Password reset for ${username}. New password: temp123 (user should change this immediately)`);
+    }
+}
+
+function deleteUser(userId, username) {
+    if (confirm(`Delete user ${username}? This action cannot be undone.`)) {
+        alert(`User ${username} has been deleted.`);
+        // In a real app, this would refresh the page or remove the row
+    }
+}
+</script>
+{% endblock %}

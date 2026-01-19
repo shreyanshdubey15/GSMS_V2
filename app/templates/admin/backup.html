@@ -1,0 +1,385 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">Data Backup & Restore</h1>
+        <p class="text-muted">Backup your data and export system information</p>
+    </div>
+</div>
+
+<!-- Backup Information -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Backup Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Backup Details</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Last Backup:</strong> {{ backup_data.metadata.created_at[:10] }}</li>
+                            <li><strong>Version:</strong> {{ backup_data.metadata.version }}</li>
+                            <li><strong>Products:</strong> {{ backup_data.metadata.total_products }}</li>
+                            <li><strong>Orders:</strong> {{ backup_data.metadata.total_orders }}</li>
+                            <li><strong>Users:</strong> {{ backup_data.metadata.total_users }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Backup Actions</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" onclick="createBackup()">
+                                <i class="fas fa-save me-2"></i>Create New Backup
+                            </button>
+                            <button class="btn btn-success" onclick="downloadBackup()">
+                                <i class="fas fa-download me-2"></i>Download Backup
+                            </button>
+                            <button class="btn btn-warning" onclick="scheduleBackup()">
+                                <i class="fas fa-clock me-2"></i>Schedule Auto Backup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">System Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="badge bg-success">Database: Online</span>
+                </div>
+                <div class="mb-3">
+                    <span class="badge bg-success">Backup: Ready</span>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Storage Used: ~2.5 MB</small>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 25%"></div>
+                </div>
+                <small class="text-muted mt-1 d-block">75% storage remaining</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Backup Data Preview -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Backup Data Preview</h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="toggleJsonView()">
+                        <i class="fas fa-code me-1"></i>Toggle View
+                    </button>
+                    <button class="btn btn-sm btn-outline-success" onclick="copyToClipboard()">
+                        <i class="fas fa-copy me-1"></i>Copy JSON
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- JSON View -->
+                <div id="jsonView" style="display: none;">
+                    <pre class="bg-light p-3 rounded"><code>{{ backup_json }}</code></pre>
+                </div>
+
+                <!-- Table View -->
+                <div id="tableView">
+                    <div class="row">
+                        <!-- Products Preview -->
+                        <div class="col-md-4 mb-3">
+                            <h6>Products ({{ backup_data.products|length }} items)</h6>
+                            <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Price</th>
+                                            <th>Stock</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in backup_data.products[:5] %}
+                                            <tr>
+                                                <td>{{ product.name[:20] }}{% if product.name|length > 20 %}...{% endif %}</td>
+                                                <td>${{ "%.2f"|format(product.price) }}</td>
+                                                <td>{{ product.stock_qty }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        {% if backup_data.products|length > 5 %}
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">
+                                                    ... and {{ backup_data.products|length - 5 }} more products
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Orders Preview -->
+                        <div class="col-md-4 mb-3">
+                            <h6>Orders ({{ backup_data.orders|length }} items)</h6>
+                            <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Employee</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in backup_data.orders[:5] %}
+                                            <tr>
+                                                <td>{{ order.id }}</td>
+                                                <td>{{ order.employee_id }}</td>
+                                                <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        {% if backup_data.orders|length > 5 %}
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">
+                                                    ... and {{ backup_data.orders|length - 5 }} more orders
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Users Preview -->
+                        <div class="col-md-4 mb-3">
+                            <h6>Users ({{ backup_data.users|length }} items)</h6>
+                            <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Username</th>
+                                            <th>Role</th>
+                                            <th>Created</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in backup_data.users[:5] %}
+                                            <tr>
+                                                <td>{{ user.username }}</td>
+                                                <td>{{ user.role }}</td>
+                                                <td>{{ user.created_at[:10] if user.created_at else 'N/A' }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        {% if backup_data.users|length > 5 %}
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">
+                                                    ... and {{ backup_data.users|length - 5 }} more users
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import/Restore Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Import & Restore</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Import Data</h6>
+                        <form method="POST" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="backupFile" class="form-label">Select Backup File</label>
+                                <input type="file" class="form-control" id="backupFile" name="backup_file" accept=".json">
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="overwriteData" name="overwrite">
+                                    <label class="form-check-label" for="overwriteData">
+                                        Overwrite existing data
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-upload me-2"></i>Import Backup
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Restore Options</h6>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Warning:</strong> Restoring data will overwrite existing records. Make sure to backup current data first.
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-danger" onclick="restoreProducts()">
+                                <i class="fas fa-boxes me-2"></i>Restore Products Only
+                            </button>
+                            <button class="btn btn-danger" onclick="restoreOrders()">
+                                <i class="fas fa-receipt me-2"></i>Restore Orders Only
+                            </button>
+                            <button class="btn btn-danger" onclick="restoreAll()">
+                                <i class="fas fa-database me-2"></i>Restore Everything
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Backup History -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Backup History</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Size</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ backup_data.metadata.created_at[:10] }}</td>
+                                <td>Full Backup</td>
+                                <td>{{ backup_json|length // 1024 }} KB</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-15</td>
+                                <td>Auto Backup</td>
+                                <td>2.1 KB</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-10</td>
+                                <td>Manual Backup</td>
+                                <td>1.8 KB</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleJsonView() {
+    const jsonView = document.getElementById('jsonView');
+    const tableView = document.getElementById('tableView');
+
+    if (jsonView.style.display === 'none') {
+        jsonView.style.display = 'block';
+        tableView.style.display = 'none';
+    } else {
+        jsonView.style.display = 'none';
+        tableView.style.display = 'block';
+    }
+}
+
+function copyToClipboard() {
+    const jsonText = `{{ backup_json }}`;
+    navigator.clipboard.writeText(jsonText).then(function() {
+        alert('JSON copied to clipboard!');
+    });
+}
+
+function createBackup() {
+    if (confirm('Create a new backup of all data?')) {
+        // Trigger backup creation
+        window.location.reload();
+    }
+}
+
+function downloadBackup() {
+    const dataStr = `{{ backup_json }}`;
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `grocery_backup_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+}
+
+function scheduleBackup() {
+    alert('Auto backup scheduling feature coming soon!');
+}
+
+function restoreProducts() {
+    if (confirm('This will restore only product data. Continue?')) {
+        alert('Product restore feature coming soon!');
+    }
+}
+
+function restoreOrders() {
+    if (confirm('This will restore only order data. Continue?')) {
+        alert('Order restore feature coming soon!');
+    }
+}
+
+function restoreAll() {
+    if (confirm('This will restore ALL data and overwrite existing records. Are you sure?')) {
+        alert('Full restore feature coming soon!');
+    }
+}
+</script>
+{% endblock %}

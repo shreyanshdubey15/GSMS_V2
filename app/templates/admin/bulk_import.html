@@ -1,0 +1,393 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">Bulk Import Products</h1>
+        <p class="text-muted">Import multiple products from CSV file</p>
+    </div>
+</div>
+
+<!-- Import Instructions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Import Instructions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>CSV Format Requirements</h6>
+                        <p>Your CSV file must contain the following columns:</p>
+                        <ul>
+                            <li><code>name</code> - Product name (required)</li>
+                            <li><code>price</code> - Product price (required, numeric)</li>
+                            <li><code>stock_qty</code> - Stock quantity (required, integer)</li>
+                            <li><code>category</code> - Product category (required)</li>
+                            <li><code>image_url</code> - Product image URL (optional)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Sample CSV Format</h6>
+                        <pre class="bg-light p-3 rounded"><code>name,price,stock_qty,category,image_url
+Apple,2.50,100,Fruits,https://example.com/apple.jpg
+Milk,3.99,50,Dairy,https://example.com/milk.jpg
+Bread,2.99,75,Bakery,</code></pre>
+                        <a href="#" class="btn btn-sm btn-outline-primary" onclick="downloadSample()">
+                            <i class="fas fa-download me-1"></i>Download Sample CSV
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import Form -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Upload CSV File</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="importForm">
+                    <div class="mb-3">
+                        <label for="csvFile" class="form-label">Select CSV File</label>
+                        <input type="file" class="form-control" id="csvFile" name="file" accept=".csv" required>
+                        <div class="form-text">Maximum file size: 10MB</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="hasHeaders" name="has_headers" checked>
+                            <label class="form-check-label" for="hasHeaders">
+                                First row contains column headers
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="skipDuplicates" name="skip_duplicates" checked>
+                            <label class="form-check-label" for="skipDuplicates">
+                                Skip duplicate products (by name)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="defaultCategory" class="form-label">Default Category (if not specified)</label>
+                        <input type="text" class="form-control" id="defaultCategory" name="default_category" placeholder="General">
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Preview:</strong> Upload your file to see a preview before importing.
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex">
+                        <button type="button" class="btn btn-outline-primary" onclick="previewFile()">
+                            <i class="fas fa-eye me-2"></i>Preview
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-upload me-2"></i>Import Products
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Statistics -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Import Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <h4 class="text-success" id="totalImported">0</h4>
+                        <small class="text-muted">Imported</small>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <h4 class="text-warning" id="totalSkipped">0</h4>
+                        <small class="text-muted">Skipped</small>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <h4 class="text-danger" id="totalErrors">0</h4>
+                        <small class="text-muted">Errors</small>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <h4 class="text-info" id="totalProcessed">0</h4>
+                        <small class="text-muted">Processed</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="mb-2">
+                    <small class="text-muted">Last Import:</small>
+                    <p class="mb-1">Never</p>
+                </div>
+                <div class="mb-0">
+                    <small class="text-muted">Success Rate:</small>
+                    <p class="mb-0">N/A</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- File Preview -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card" id="previewCard" style="display: none;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">File Preview</h5>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="hidePreview()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped" id="previewTable">
+                        <thead>
+                            <tr id="previewHeader"></tr>
+                        </thead>
+                        <tbody id="previewBody"></tbody>
+                    </table>
+                </div>
+                <div class="alert alert-warning mt-3" id="validationAlert" style="display: none;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="validationMessage"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import History -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Import History</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>File Name</th>
+                                <th>Records</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2024-01-20 10:30</td>
+                                <td>products_january.csv</td>
+                                <td>150</td>
+                                <td><span class="badge bg-success">Success</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info" onclick="showDetails('import1')">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-15 14:20</td>
+                                <td>inventory_update.csv</td>
+                                <td>75</td>
+                                <td><span class="badge bg-warning">Partial</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info" onclick="showDetails('import2')">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-01-10 09:15</td>
+                                <td>new_products.csv</td>
+                                <td>25</td>
+                                <td><span class="badge bg-success">Success</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info" onclick="showDetails('import3')">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function downloadSample() {
+    const csvContent = `name,price,stock_qty,category,image_url
+Apple,2.50,100,Fruits,https://example.com/apple.jpg
+Banana,1.99,150,Fruits,https://example.com/banana.jpg
+Milk,3.99,50,Dairy,https://example.com/milk.jpg
+Bread,2.99,75,Bakery,https://example.com/bread.jpg
+Eggs,4.99,200,Dairy,https://example.com/eggs.jpg
+Chicken,8.99,30,Meat,https://example.com/chicken.jpg
+Rice,5.99,80,Grains,https://example.com/rice.jpg
+Tomato,3.49,120,Vegetables,https://example.com/tomato.jpg
+Potato,2.49,200,Vegetables,https://example.com/potato.jpg
+Orange Juice,4.49,40,Beverages,https://example.com/orange-juice.jpg`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sample_products.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+function previewFile() {
+    const fileInput = document.getElementById('csvFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert('Please select a CSV file first.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const csv = e.target.result;
+        const lines = csv.split('\n').filter(line => line.trim());
+        const hasHeaders = document.getElementById('hasHeaders').checked;
+
+        // Parse CSV (simple parsing, no quoted fields handling)
+        const data = lines.map(line => line.split(',').map(cell => cell.trim()));
+
+        displayPreview(data, hasHeaders);
+    };
+    reader.readAsText(file);
+}
+
+function displayPreview(data, hasHeaders) {
+    const previewCard = document.getElementById('previewCard');
+    const headerRow = document.getElementById('previewHeader');
+    const body = document.getElementById('previewBody');
+    const validationAlert = document.getElementById('validationAlert');
+    const validationMessage = document.getElementById('validationMessage');
+
+    // Clear previous content
+    headerRow.innerHTML = '';
+    body.innerHTML = '';
+
+    if (data.length === 0) {
+        validationMessage.textContent = 'File appears to be empty.';
+        validationAlert.style.display = 'block';
+        return;
+    }
+
+    // Validate headers
+    const headers = hasHeaders ? data[0] : ['name', 'price', 'stock_qty', 'category', 'image_url'];
+    const requiredHeaders = ['name', 'price', 'stock_qty', 'category'];
+    const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+
+    if (missingHeaders.length > 0) {
+        validationMessage.textContent = `Missing required columns: ${missingHeaders.join(', ')}`;
+        validationAlert.style.display = 'block';
+        previewCard.style.display = 'block';
+        return;
+    }
+
+    validationAlert.style.display = 'none';
+
+    // Create header row
+    headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        if (requiredHeaders.includes(header)) {
+            th.innerHTML += ' <span class="text-danger">*</span>';
+        }
+        headerRow.appendChild(th);
+    });
+
+    // Create data rows (show first 10)
+    const startRow = hasHeaders ? 1 : 0;
+    const endRow = Math.min(startRow + 10, data.length);
+
+    for (let i = startRow; i < endRow; i++) {
+        const tr = document.createElement('tr');
+        const rowData = data[i];
+
+        headers.forEach((header, index) => {
+            const td = document.createElement('td');
+            td.textContent = rowData[index] || '';
+            tr.appendChild(td);
+        });
+
+        body.appendChild(tr);
+    }
+
+    previewCard.style.display = 'block';
+}
+
+function hidePreview() {
+    document.getElementById('previewCard').style.display = 'none';
+}
+
+function showDetails(importId) {
+    // Mock details - in real app, this would fetch from server
+    const details = {
+        import1: {
+            title: 'January Products Import',
+            success: 145,
+            skipped: 3,
+            errors: 2,
+            errors_list: ['Row 23: Invalid price format', 'Row 67: Missing category']
+        },
+        import2: {
+            title: 'Inventory Update',
+            success: 70,
+            skipped: 5,
+            errors: 0,
+            errors_list: []
+        },
+        import3: {
+            title: 'New Products',
+            success: 25,
+            skipped: 0,
+            errors: 0,
+            errors_list: []
+        }
+    };
+
+    const detail = details[importId];
+    if (detail) {
+        alert(`${detail.title}\n\nSuccess: ${detail.success}\nSkipped: ${detail.skipped}\nErrors: ${detail.errors}\n\n${detail.errors_list.length > 0 ? 'Errors:\n' + detail.errors_list.join('\n') : 'No errors'}`);
+    }
+}
+
+// Update form submission to show progress
+document.getElementById('importForm').addEventListener('submit', function(e) {
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Importing...';
+    submitBtn.disabled = true;
+
+    // In a real implementation, you'd handle the form submission with fetch()
+    // and update progress bars based on server responses
+
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 3000); // Simulate processing time
+});
+</script>
+{% endblock %}

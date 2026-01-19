@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+{% include "partials/_navbar.html" %}
+
+<div class="bg-light border-bottom">
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link{% if request.endpoint == 'employee.dashboard' %} active{% endif %}"
+                               href="{{ url_for('employee.dashboard') }}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link{% if request.endpoint == 'employee.products' %} active{% endif %}"
+                               href="{{ url_for('employee.products') }}">
+                                <i class="fas fa-boxes"></i> Products
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link{% if request.endpoint == 'employee.cart' %} active{% endif %}"
+                               href="{{ url_for('employee.cart') }}">
+                                <i class="fas fa-shopping-cart"></i> Cart
+                                {% if session.get('cart', {}) %}
+                                    <span class="badge bg-primary ms-1">{{ session.cart|length }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link{% if 'orders' in request.endpoint %} active{% endif %}"
+                               href="{{ url_for('employee.orders') }}">
+                                <i class="fas fa-receipt"></i> My Orders
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Search Bar -->
+                    <form class="d-flex ms-3" method="GET" action="{{ url_for('employee.products') }}">
+                        <input class="form-control me-2" type="search" name="search"
+                               placeholder="Search products..." value="{{ request.args.get('search', '') }}">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    {% include "partials/_flash.html" %}
+    {% block employee_content %}{% endblock %}
+</div>
+{% endblock %}

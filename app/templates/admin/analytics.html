@@ -1,0 +1,284 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">Analytics & Reports</h1>
+        <p class="text-muted">Advanced analytics and business intelligence</p>
+    </div>
+</div>
+
+<!-- Sales Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">7-Day Sales</h6>
+                <h3 class="mb-0">${{ "%.2f"|format(sales_7d) }}</h3>
+                <small>₹{{ "%.2f"|format(sales_7d * 83.50) }} | {{ orders_7d }} orders</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">30-Day Sales</h6>
+                <h3 class="mb-0">${{ "%.2f"|format(sales_30d) }}</h3>
+                <small>₹{{ "%.2f"|format(sales_30d * 83.50) }} | {{ orders_30d }} orders</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title">90-Day Sales</h6>
+                <h3 class="mb-0">${{ "%.2f"|format(sales_90d) }}</h3>
+                <small>₹{{ "%.2f"|format(sales_90d * 83.50) }} | {{ orders_90d }} orders</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sales Trend Chart -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Sales Trend (Last 30 Days)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="salesTrendChart" width="400" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Products and Categories -->
+<div class="row mb-4">
+    <!-- Top Products -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Top Selling Products (30 Days)</h5>
+                <span class="badge bg-primary">{{ top_products|length }} products</span>
+            </div>
+            <div class="card-body p-0">
+                {% if top_products %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                    <th>Revenue</th>
+                                    <th>Avg Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in top_products %}
+                                    <tr>
+                                        <td>{{ product.name }}</td>
+                                        <td><span class="badge bg-secondary">{{ product.category }}</span></td>
+                                        <td>{{ product.total_quantity }}</td>
+                                        <td>${{ "%.2f"|format(product.total_revenue) }}</td>
+                                        <td>${{ "%.2f"|format(product.avg_price) }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                        <p>No sales data available</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Performance -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Category Performance (30 Days)</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if category_performance %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Products</th>
+                                    <th>Items Sold</th>
+                                    <th>Total Sales</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category in category_performance %}
+                                    <tr>
+                                        <td><strong>{{ category.category }}</strong></td>
+                                        <td>{{ category.product_count }}</td>
+                                        <td>{{ category.total_quantity }}</td>
+                                        <td><strong>${{ "%.2f"|format(category.total_revenue) }}</strong></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-tags fa-2x mb-2"></i>
+                        <p>No category data available</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Employee Performance -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Employee Performance (30 Days)</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if employee_performance %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Orders</th>
+                                    <th>Total Sales</th>
+                                    <th>Average Order</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for employee in employee_performance %}
+                                    <tr>
+                                        <td><strong>{{ employee.username }}</strong></td>
+                                        <td>{{ employee.order_count }}</td>
+                                        <td>${{ "%.2f"|format(employee.total_sales) }}</td>
+                                        <td>${{ "%.2f"|format(employee.avg_order_value) }}</td>
+                                        <td>
+                                            {% if employee.total_sales > 1000 %}
+                                                <span class="badge bg-success">Excellent</span>
+                                            {% elif employee.total_sales > 500 %}
+                                                <span class="badge bg-primary">Good</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Average</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-users fa-2x mb-2"></i>
+                        <p>No employee performance data available</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Options -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Export Analytics Data</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('admin.export_data') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-download me-2"></i>Export Data
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-success w-100" onclick="printReport()">
+                            <i class="fas fa-print me-2"></i>Print Report
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('admin.backup') }}" class="btn btn-warning w-100">
+                            <i class="fas fa-save me-2"></i>Backup Data
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('admin.profit_analysis') }}" class="btn btn-info w-100">
+                            <i class="fas fa-chart-line me-2"></i>Profit Analysis
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sales Trend Chart
+    const salesData = {{ daily_sales|tojson }};
+    const ctx = document.getElementById('salesTrendChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: salesData.map(item => {
+                const date = new Date(item.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }),
+            datasets: [{
+                label: 'Daily Sales ($)',
+                data: salesData.map(item => item.sales),
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Sales Trend Over Time'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toFixed(2);
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+
+function printReport() {
+    window.print();
+}
+</script>
+{% endblock %}

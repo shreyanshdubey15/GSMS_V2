@@ -1,0 +1,318 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">Customer Management</h1>
+        <p class="text-muted">Customer analytics, segmentation, and lifetime value tracking</p>
+    </div>
+</div>
+
+<!-- Customer Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">Total Customers</h6>
+                <h2 class="mb-0">{{ active_customers|length }}</h2>
+                <small>Active this month</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">VIP Customers</h6>
+                <h2 class="mb-0">{{ vip_customers|length }}</h2>
+                <small>$1000+ lifetime value</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title">Regular Customers</h6>
+                <h2 class="mb-0">{{ regular_customers|length }}</h2>
+                <small>$500-$999 lifetime value</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h6 class="card-title">New Customers</h6>
+                <h2 class="mb-0">{{ new_customers|length }}</h2>
+                <small>Under $500 lifetime value</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Customers by Recent Spending -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Top Customers (Last 30 Days)</h5>
+                <span class="badge bg-primary">{{ top_customers|length }} active customers</span>
+            </div>
+            <div class="card-body p-0">
+                {% if top_customers %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Orders</th>
+                                    <th>Total Spent</th>
+                                    <th>Avg Order</th>
+                                    <th>Last Order</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for customer in top_customers %}
+                                    <tr>
+                                        <td><strong>{{ customer.username }}</strong></td>
+                                        <td>{{ customer.order_count }}</td>
+                                        <td>${{ "%.2f"|format(customer.total_spent) }}</td>
+                                        <td>${{ "%.2f"|format(customer.avg_order_value) }}</td>
+                                        <td>{{ customer.last_order_date.strftime('%m/%d') if customer.last_order_date else 'N/A' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-users fa-2x mb-2"></i>
+                        <p>No customer data available</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Lifetime Value -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Customer Lifetime Value</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if customer_lifetime %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Total Orders</th>
+                                    <th>Lifetime Value</th>
+                                    <th>Segment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for customer in customer_lifetime[:10] %}
+                                    <tr>
+                                        <td><strong>{{ customer.username }}</strong></td>
+                                        <td>{{ customer.total_orders }}</td>
+                                        <td>${{ "%.2f"|format(customer.lifetime_value) }}</td>
+                                        <td>
+                                            {% if customer.lifetime_value >= 1000 %}
+                                                <span class="badge bg-success">VIP</span>
+                                            {% elif customer.lifetime_value >= 500 %}
+                                                <span class="badge bg-primary">Gold</span>
+                                            {% elif customer.lifetime_value >= 100 %}
+                                                <span class="badge bg-info">Silver</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Bronze</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                        <p>No lifetime value data available</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Insights and Actions -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Customer Insights & Recommendations</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-success mb-3">💎 Loyalty Opportunities</h6>
+                        <ul class="list-unstyled">
+                            {% if vip_customers %}
+                                <li class="mb-2">
+                                    <i class="fas fa-gift text-success me-2"></i>
+                                    <strong>{{ vip_customers|length }} VIP customers</strong> eligible for premium rewards
+                                </li>
+                            {% endif %}
+                            <li class="mb-2">
+                                <i class="fas fa-birthday-cake text-primary me-2"></i>
+                                Send birthday offers to increase retention by 25%
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-star text-warning me-2"></i>
+                                Reward top 10% of customers with exclusive discounts
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-info mb-3">📈 Growth Strategies</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-users text-info me-2"></i>
+                                Focus re-engagement campaigns on inactive customers
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-envelope text-primary me-2"></i>
+                                Implement email marketing for personalized offers
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-mobile-alt text-success me-2"></i>
+                                Develop loyalty app for mobile ordering convenience
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Actions -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Customer Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" onclick="sendBulkEmail()">
+                        <i class="fas fa-envelope me-2"></i>Send Bulk Email
+                    </button>
+                    <button class="btn btn-success" onclick="exportCustomers()">
+                        <i class="fas fa-download me-2"></i>Export Customer Data
+                    </button>
+                    <button class="btn btn-warning" onclick="createLoyaltyProgram()">
+                        <i class="fas fa-gift me-2"></i>Create Loyalty Program
+                    </button>
+                    <button class="btn btn-info" onclick="runCustomerAnalysis()">
+                        <i class="fas fa-chart-bar me-2"></i>Advanced Analytics
+                    </button>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="mb-3">
+                    <label class="form-label">Quick Filters</label>
+                    <select class="form-select" id="customerFilter">
+                        <option value="all">All Customers</option>
+                        <option value="vip">VIP Customers</option>
+                        <option value="active">Active This Month</option>
+                        <option value="inactive">Inactive (30+ days)</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-outline-secondary w-100" onclick="applyFilter()">
+                    Apply Filter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Segmentation Chart -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Customer Segmentation Overview</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="customerSegmentationChart" width="400" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Customer Segmentation Chart
+    const ctx = document.getElementById('customerSegmentationChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['VIP Customers', 'Regular Customers', 'New Customers'],
+            datasets: [{
+                data: [{{ vip_customers|length }}, {{ regular_customers|length }}, {{ new_customers|length }}],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(23, 162, 184, 0.8)',
+                    'rgba(255, 193, 7, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(23, 162, 184, 1)',
+                    'rgba(255, 193, 7, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                title: {
+                    display: true,
+                    text: 'Customer Distribution by Value Segment'
+                }
+            }
+        }
+    });
+});
+
+function sendBulkEmail() {
+    alert('Bulk email feature coming soon! This will allow sending promotional emails to customer segments.');
+}
+
+function exportCustomers() {
+    alert('Customer export feature coming soon! This will generate a CSV file with customer data.');
+}
+
+function createLoyaltyProgram() {
+    alert('Loyalty program feature coming soon! This will help retain customers with points and rewards.');
+}
+
+function runCustomerAnalysis() {
+    alert('Advanced analytics feature coming soon! This will provide detailed customer behavior insights.');
+}
+
+function applyFilter() {
+    const filter = document.getElementById('customerFilter').value;
+    alert(`Applying filter: ${filter}. This feature will filter the customer tables based on the selected criteria.`);
+}
+</script>
+{% endblock %}

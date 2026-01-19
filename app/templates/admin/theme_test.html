@@ -1,0 +1,204 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">Dark Mode Test</h1>
+            <p class="text-muted">Test page for dark mode functionality</p>
+        </div>
+    </div>
+
+    <!-- Current Theme Status -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Current Theme Status</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Body data-theme attribute:</strong> <span id="currentTheme">checking...</span></p>
+                    <p><strong>localStorage value:</strong> <span id="localStorageTheme">checking...</span></p>
+                    <p><strong>Applied styles:</strong></p>
+                    <ul>
+                        <li>Background: <span id="bgColor">checking...</span></li>
+                        <li>Text: <span id="textColor">checking...</span></li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="checkThemeStatus()">Refresh Status</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Theme Controls</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <button class="btn btn-outline-dark me-2" onclick="setLightMode()">Force Light Mode</button>
+                        <button class="btn btn-outline-dark" onclick="setDarkMode()">Force Dark Mode</button>
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-outline-primary me-2" onclick="toggleTheme()">Toggle Theme</button>
+                        <button class="btn btn-outline-warning" onclick="clearLocalStorage()">Clear Storage</button>
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-outline-success" onclick="testCSSVariables()">Test CSS Variables</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Elements -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Test Elements</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Cards</h6>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">Sample Card</h6>
+                                    <p class="card-text">This is a test card to check dark mode styling.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6>Buttons</h6>
+                            <button class="btn btn-primary me-2">Primary</button>
+                            <button class="btn btn-secondary me-2">Secondary</button>
+                            <button class="btn btn-success me-2">Success</button>
+                            <button class="btn btn-danger">Danger</button>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Table</h6>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Value</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Test Item 1</td>
+                                        <td>$10.00</td>
+                                        <td><span class="badge bg-success">Active</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Test Item 2</td>
+                                        <td>$25.00</td>
+                                        <td><span class="badge bg-warning">Pending</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug Information -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Debug Information</h5>
+                </div>
+                <div class="card-body">
+                    <div id="debugInfo">
+                        <p>Loading debug information...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Test functions for dark mode
+function checkThemeStatus() {
+    const body = document.body;
+    const currentTheme = body.getAttribute('data-theme') || 'none';
+    const localStorageTheme = localStorage.getItem('admin-theme') || 'none';
+    const bgColor = getComputedStyle(body).backgroundColor;
+    const textColor = getComputedStyle(body).color;
+
+    document.getElementById('currentTheme').textContent = currentTheme;
+    document.getElementById('localStorageTheme').textContent = localStorageTheme;
+    document.getElementById('bgColor').textContent = bgColor;
+    document.getElementById('textColor').textContent = textColor;
+}
+
+function setLightMode() {
+    document.body.setAttribute('data-theme', 'light');
+    localStorage.setItem('admin-theme', 'light');
+    console.log('Set to light mode');
+    checkThemeStatus();
+}
+
+function setDarkMode() {
+    document.body.setAttribute('data-theme', 'dark');
+    localStorage.setItem('admin-theme', 'dark');
+    console.log('Set to dark mode');
+    checkThemeStatus();
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('admin-theme', newTheme);
+    console.log('Toggled to:', newTheme);
+    checkThemeStatus();
+}
+
+function clearLocalStorage() {
+    localStorage.removeItem('admin-theme');
+    console.log('Cleared localStorage');
+    checkThemeStatus();
+}
+
+function testCSSVariables() {
+    const root = document.documentElement;
+    const bgPrimary = getComputedStyle(root).getPropertyValue('--bg-primary');
+    const textPrimary = getComputedStyle(root).getPropertyValue('--text-primary');
+
+    console.log('CSS Variables:');
+    console.log('--bg-primary:', bgPrimary);
+    console.log('--text-primary:', textPrimary);
+
+    const debugInfo = document.getElementById('debugInfo');
+    debugInfo.innerHTML = `
+        <p><strong>CSS Variables:</strong></p>
+        <ul>
+            <li>--bg-primary: ${bgPrimary}</li>
+            <li>--text-primary: ${textPrimary}</li>
+            <li>--bg-secondary: ${getComputedStyle(root).getPropertyValue('--bg-secondary')}</li>
+            <li>--sidebar-bg: ${getComputedStyle(root).getPropertyValue('--sidebar-bg')}</li>
+            <li>--card-bg: ${getComputedStyle(root).getPropertyValue('--card-bg')}</li>
+        </ul>
+    `;
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    checkThemeStatus();
+    testCSSVariables();
+});
+</script>
+{% endblock %}

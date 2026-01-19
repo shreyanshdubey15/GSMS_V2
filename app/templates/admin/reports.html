@@ -1,0 +1,416 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">Reports Dashboard</h1>
+            <p class="text-muted">Comprehensive reporting and analytics center</p>
+        </div>
+    </div>
+
+    <!-- Quick Report Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Generate Reports</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.sales_report') }}" class="btn btn-primary w-100">
+                                <i class="fas fa-chart-line me-2"></i>Sales Report
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.inventory_report') }}" class="btn btn-success w-100">
+                                <i class="fas fa-boxes me-2"></i>Inventory Report
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.analytics') }}" class="btn btn-info w-100">
+                                <i class="fas fa-chart-bar me-2"></i>Analytics Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.profit_analysis') }}" class="btn btn-warning w-100">
+                                <i class="fas fa-calculator me-2"></i>Profit Analysis
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.customers') }}" class="btn btn-secondary w-100">
+                                <i class="fas fa-users me-2"></i>Customer Reports
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.audit_log') }}" class="btn btn-dark w-100">
+                                <i class="fas fa-history me-2"></i>Audit Log
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.system_health') }}" class="btn btn-danger w-100">
+                                <i class="fas fa-heartbeat me-2"></i>System Health
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary w-100" onclick="exportAllReports()">
+                                <i class="fas fa-download me-2"></i>Export All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Categories -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-dollar-sign text-success me-2"></i>Financial Reports
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('admin.sales_report') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-chart-line me-2"></i>Daily/Weekly/Monthly Sales
+                        </a>
+                        <a href="{{ url_for('admin.profit_analysis') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calculator me-2"></i>Profit & Loss Analysis
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-file-invoice-dollar me-2"></i>Tax Reports (Coming Soon)
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-balance-scale me-2"></i>Balance Sheet (Coming Soon)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-warehouse text-primary me-2"></i>Inventory Reports
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('admin.inventory_report') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-boxes me-2"></i>Stock Levels & Valuation
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-truck me-2"></i>Supplier Performance (Coming Soon)
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alerts (Coming Soon)
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-chart-pie me-2"></i>Category Distribution (Coming Soon)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operational Reports -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-users text-info me-2"></i>Customer Reports
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('admin.customers') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user-friends me-2"></i>Customer Analytics
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-envelope me-2"></i>Email Campaign Reports (Coming Soon)
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-star me-2"></i>Customer Satisfaction (Coming Soon)
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-retweet me-2"></i>Retention Analysis (Coming Soon)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cogs text-secondary me-2"></i>System Reports
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('admin.audit_log') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-history me-2"></i>Audit Log & Security
+                        </a>
+                        <a href="{{ url_for('admin.system_health') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-heartbeat me-2"></i>System Performance
+                        </a>
+                        <a href="{{ url_for('admin.maintenance') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tools me-2"></i>Maintenance Reports
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action disabled">
+                            <i class="fas fa-shield-alt me-2"></i>Security Reports (Coming Soon)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scheduled Reports -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Scheduled Reports</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Automated Reporting:</strong> Set up regular report generation and email delivery.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Current Schedules</h6>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-2 border rounded">
+                                    <div>
+                                        <strong>Daily Sales Summary</strong>
+                                        <br><small class="text-muted">Sent every day at 6:00 AM</small>
+                                    </div>
+                                    <span class="badge bg-success">Active</span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-2 border rounded">
+                                    <div>
+                                        <strong>Weekly Inventory Report</strong>
+                                        <br><small class="text-muted">Sent every Monday at 9:00 AM</small>
+                                    </div>
+                                    <span class="badge bg-success">Active</span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-2 border rounded">
+                                    <div>
+                                        <strong>Monthly Financial Summary</strong>
+                                        <br><small class="text-muted">Sent on 1st of each month at 8:00 AM</small>
+                                    </div>
+                                    <span class="badge bg-warning">Paused</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6>Schedule New Report</h6>
+                            <form id="scheduleReportForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Report Type</label>
+                                    <select class="form-select" id="reportType">
+                                        <option value="sales">Sales Report</option>
+                                        <option value="inventory">Inventory Report</option>
+                                        <option value="financial">Financial Summary</option>
+                                        <option value="customer">Customer Analytics</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Frequency</label>
+                                    <select class="form-select" id="reportFrequency">
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Recipients (comma-separated emails)</label>
+                                    <input type="text" class="form-control" id="reportRecipients" placeholder="admin@example.com, manager@example.com">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Schedule Report</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Reports -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Reports</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Report Name</th>
+                                    <th>Type</th>
+                                    <th>Generated</th>
+                                    <th>Size</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Daily Sales Report - Jan 20, 2024</td>
+                                    <td><span class="badge bg-success">Sales</span></td>
+                                    <td>2 hours ago</td>
+                                    <td>245 KB</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="viewReport('daily-sales-2024-01-20')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" onclick="downloadReport('daily-sales-2024-01-20')">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteReport('daily-sales-2024-01-20')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Weekly Inventory Report - Week 3</td>
+                                    <td><span class="badge bg-primary">Inventory</span></td>
+                                    <td>1 day ago</td>
+                                    <td>1.2 MB</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="viewReport('weekly-inventory-2024-w03')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" onclick="downloadReport('weekly-inventory-2024-w03')">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteReport('weekly-inventory-2024-w03')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Monthly Financial Summary - December 2024</td>
+                                    <td><span class="badge bg-warning">Financial</span></td>
+                                    <td>3 days ago</td>
+                                    <td>892 KB</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="viewReport('monthly-financial-2024-12')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" onclick="downloadReport('monthly-financial-2024-12')">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteReport('monthly-financial-2024-12')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Customer Analytics Report - Q4 2024</td>
+                                    <td><span class="badge bg-info">Customer</span></td>
+                                    <td>1 week ago</td>
+                                    <td>1.8 MB</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="viewReport('customer-analytics-2024-q4')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" onclick="downloadReport('customer-analytics-2024-q4')">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteReport('customer-analytics-2024-q4')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function exportAllReports() {
+    if (confirm('Generate and download a comprehensive report package containing all available reports?')) {
+        // Simulate export process
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
+        btn.disabled = true;
+
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            alert('Report package generated successfully! Download will start automatically.');
+        }, 3000);
+    }
+}
+
+function viewReport(reportId) {
+    alert(`Opening report: ${reportId}`);
+    // In a real app, this would open the report in a new tab or modal
+}
+
+function downloadReport(reportId) {
+    alert(`Downloading report: ${reportId}`);
+    // In a real app, this would trigger a file download
+}
+
+function deleteReport(reportId) {
+    if (confirm(`Delete report "${reportId}"? This action cannot be undone.`)) {
+        alert(`Report "${reportId}" has been deleted.`);
+        // In a real app, this would remove the report from the list
+    }
+}
+
+// Schedule report form
+document.getElementById('scheduleReportForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const reportType = document.getElementById('reportType').value;
+    const frequency = document.getElementById('reportFrequency').value;
+    const recipients = document.getElementById('reportRecipients').value;
+
+    if (!recipients.trim()) {
+        alert('Please enter at least one email recipient.');
+        return;
+    }
+
+    // Simulate scheduling
+    alert(`Report scheduled successfully!\n\nType: ${reportType}\nFrequency: ${frequency}\nRecipients: ${recipients}`);
+
+    // Reset form
+    this.reset();
+});
+</script>
+{% endblock %}

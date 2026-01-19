@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-body p-5">
+                    <!-- Header -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <h2 class="mb-1">{{ store_name }}</h2>
+                            <p class="mb-0 text-muted">{{ store_address }}</p>
+                            <p class="mb-0 text-muted">{{ store_phone }}</p>
+                            <p class="mb-0 text-muted">{{ store_email }}</p>
+                        </div>
+                        <div class="col-6 text-end">
+                            <h1 class="mb-0">INVOICE</h1>
+                            <h4 class="text-primary">#{{ order.id }}</h4>
+                            <p class="mb-0">Date: {{ order.created_at.strftime('%B %d, %Y') }}</p>
+                            <p class="mb-0">Time: {{ order.created_at.strftime('%I:%M %p') }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Customer Info -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <h5>Employee:</h5>
+                            <p class="mb-0">{{ order.employee.username }}</p>
+                        </div>
+                        <div class="col-6 text-end">
+                            <h5>Payment Method:</h5>
+                            <p class="mb-0">{{ order.payment_method|upper }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-center">Qty</th>
+                                    <th class="text-end">Unit Price</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_items %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ item.product_name_snapshot }}</strong>
+                                        </td>
+                                        <td class="text-center">{{ item.quantity }}</td>
+                                        <td class="text-end">${{ "%.2f"|format(item.unit_price_snapshot) }}</td>
+                                        <td class="text-end">${{ "%.2f"|format(item.line_total) }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="row">
+                        <div class="col-8"></div>
+                        <div class="col-4">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-end"><strong>Subtotal:</strong></td>
+                                    <td class="text-end">${{ "%.2f"|format(order.subtotal) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end"><strong>Tax:</strong></td>
+                                    <td class="text-end">${{ "%.2f"|format(order.tax_amount) }}</td>
+                                </tr>
+                                <tr class="border-top">
+                                    <td class="text-end h5"><strong>Total:</strong></td>
+                                    <td class="text-end h5 text-primary"><strong>${{ "%.2f"|format(order.total_amount) }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="row mt-5">
+                        <div class="col-12 text-center text-muted">
+                            <p class="mb-0">Thank you for your business!</p>
+                            <small>Generated on {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Print Button -->
+            <div class="text-center mt-3">
+                <button onclick="window.print()" class="btn btn-primary btn-lg">
+                    <i class="fas fa-print"></i> Print Invoice
+                </button>
+                <a href="javascript:window.close()" class="btn btn-secondary btn-lg ms-2">
+                    <i class="fas fa-times"></i> Close
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if auto_print %}
+<script>
+    // Auto-print when page loads with print parameter
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            window.print();
+        }, 500);
+    });
+</script>
+{% endif %}
+{% endblock %}

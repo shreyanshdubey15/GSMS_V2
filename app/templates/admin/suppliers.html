@@ -1,0 +1,380 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">Supplier Management</h1>
+        <p class="text-muted">Manage suppliers, track performance, and optimize procurement</p>
+    </div>
+</div>
+
+<!-- Supplier Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">Total Suppliers</h6>
+                <h2 class="mb-0">{{ total_suppliers }}</h2>
+                <small>Active partnerships</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">Active Suppliers</h6>
+                <h2 class="mb-0">{{ active_suppliers }}</h2>
+                <small>Currently supplying</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title">Average Rating</h6>
+                <h2 class="mb-0">{{ avg_rating }}</h2>
+                <small>Out of 5.0 stars</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h6 class="card-title">Total Value</h6>
+                <h2 class="mb-0">${{ "%.0f"|format(total_supplier_value) }}</h2>
+                <small>Procurement spend</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Supplier Performance Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Supplier Performance</h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary me-2" onclick="addSupplier()">
+                        <i class="fas fa-plus me-1"></i>Add Supplier
+                    </button>
+                    <button class="btn btn-sm btn-outline-success" onclick="exportSuppliers()">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Supplier</th>
+                                <th>Category</th>
+                                <th>Contact</th>
+                                <th>Rating</th>
+                                <th>Orders</th>
+                                <th>Total Value</th>
+                                <th>Last Order</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for supplier in suppliers %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ supplier.name }}</strong>
+                                        <br><small class="text-muted">{{ supplier.phone }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ supplier.category }}</span>
+                                    </td>
+                                    <td>{{ supplier.contact }}</td>
+                                    <td>
+                                        {% for i in range(5) %}
+                                            {% if i < supplier.rating %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-muted"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <small class="text-muted ms-1">{{ "%.1f"|format(supplier.rating) }}</small>
+                                    </td>
+                                    <td>{{ supplier.total_orders }}</td>
+                                    <td>${{ "%.2f"|format(supplier.total_value) }}</td>
+                                    <td>{{ supplier.last_order }}</td>
+                                    <td>
+                                        {% if supplier.status == 'Active' %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="viewSupplier({{ supplier.id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning" onclick="editSupplier({{ supplier.id }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-info" onclick="contactSupplier({{ supplier.id }})">
+                                                <i class="fas fa-envelope"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Supplier Analytics -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Supplier Performance Metrics</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="supplierPerformanceChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Procurement Insights</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center p-3">
+                            <h4 class="text-primary">{{ suppliers|sum(attribute='total_orders') }}</h4>
+                            <p class="mb-1">Total Orders</p>
+                            <small class="text-muted">This month</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center p-3">
+                            <h4 class="text-success">${{ "%.0f"|format(total_supplier_value / suppliers|sum(attribute='total_orders')) }}</h4>
+                            <p class="mb-1">Avg Order Value</p>
+                            <small class="text-muted">Per supplier</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <h6>Top Performing Categories</h6>
+                <div class="mb-2">
+                    <small class="text-muted">Fruits & Vegetables</small>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: 75%"></div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Dairy Products</small>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-info" style="width: 60%"></div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Bakery</small>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-warning" style="width: 45%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Supplier Actions and Recommendations -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Supplier Management Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-3">📊 Performance Analysis</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-chart-line text-success me-2"></i>
+                                <strong>Supplier reliability:</strong> {{ "%.1f"|format(avg_rating) }}/5.0 average rating
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-clock text-info me-2"></i>
+                                <strong>On-time delivery:</strong> 94% of orders delivered on schedule
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-dollar-sign text-warning me-2"></i>
+                                <strong>Cost efficiency:</strong> 8% below budgeted procurement costs
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-3">🎯 Recommendations</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-handshake text-primary me-2"></i>
+                                Negotiate bulk discounts with top 3 suppliers
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-search text-info me-2"></i>
+                                Evaluate 2-3 new suppliers for bakery category
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-award text-success me-2"></i>
+                                Implement supplier performance-based incentives
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-calendar-alt text-warning me-2"></i>
+                                Schedule quarterly supplier review meetings
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100 mb-2" onclick="sendRFQ()">
+                            <i class="fas fa-file-alt me-2"></i>Send RFQ
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-success w-100 mb-2" onclick="placeBulkOrder()">
+                            <i class="fas fa-shopping-cart me-2"></i>Bulk Order
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-warning w-100 mb-2" onclick="scheduleMeeting()">
+                            <i class="fas fa-calendar me-2"></i>Schedule Meeting
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-info w-100 mb-2" onclick="generateReport()">
+                            <i class="fas fa-chart-bar me-2"></i>Supplier Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Supplier Performance Chart
+    const ctx = document.getElementById('supplierPerformanceChart').getContext('2d');
+
+    const suppliersData = {{ suppliers|tojson }};
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: suppliersData.map(s => s.name.substring(0, 15) + (s.name.length > 15 ? '...' : '')),
+            datasets: [{
+                label: 'Total Orders',
+                data: suppliersData.map(s => s.total_orders),
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                yAxisID: 'y'
+            }, {
+                label: 'Rating',
+                data: suppliersData.map(s => s.rating),
+                backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                borderColor: 'rgba(255, 206, 86, 1)',
+                borderWidth: 1,
+                yAxisID: 'y1',
+                type: 'line'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Orders'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Rating'
+                    },
+                    min: 0,
+                    max: 5
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Supplier Performance Overview'
+                }
+            }
+        }
+    });
+});
+
+function addSupplier() {
+    alert('Add supplier feature coming soon! This will allow adding new supplier partnerships.');
+}
+
+function viewSupplier(id) {
+    alert(`Viewing supplier details for ID: ${id}. This will show detailed supplier information and order history.`);
+}
+
+function editSupplier(id) {
+    alert(`Editing supplier ID: ${id}. This will allow updating supplier information and preferences.`);
+}
+
+function contactSupplier(id) {
+    alert(`Contacting supplier ID: ${id}. This will open email composer or contact form.`);
+}
+
+function exportSuppliers() {
+    alert('Export feature coming soon! This will generate a comprehensive supplier report in PDF or Excel format.');
+}
+
+function sendRFQ() {
+    alert('RFQ (Request for Quote) feature coming soon! This will allow sending bulk quote requests to suppliers.');
+}
+
+function placeBulkOrder() {
+    alert('Bulk ordering feature coming soon! This will streamline large procurement orders.');
+}
+
+function scheduleMeeting() {
+    alert('Meeting scheduler coming soon! This will help coordinate supplier meetings and negotiations.');
+}
+
+function generateReport() {
+    alert('Supplier report generation coming soon! This will create detailed performance reports.');
+}
+</script>
+{% endblock %}

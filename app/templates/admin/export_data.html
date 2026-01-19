@@ -1,0 +1,311 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0">Export Data</h1>
+            <p class="text-muted">Export your data in various formats for backup, analysis, or migration</p>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Data Export Options</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-file-csv fa-3x text-primary mb-3"></i>
+                                    <h5 class="card-title">CSV Export</h5>
+                                    <p class="card-text">Export all data as CSV files that can be opened in Excel or imported into other systems.</p>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeProducts" checked>
+                                            <label class="form-check-label" for="includeProducts">
+                                                Include Products
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeOrders" checked>
+                                            <label class="form-check-label" for="includeOrders">
+                                                Include Orders
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeUsers">
+                                            <label class="form-check-label" for="includeUsers">
+                                                Include Users (Admin only)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="exportCSV()">
+                                        <i class="fas fa-download me-2"></i>Export CSV
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-file-excel fa-3x text-success mb-3"></i>
+                                    <h5 class="card-title">Excel Export</h5>
+                                    <p class="card-text">Export data as formatted Excel spreadsheets with multiple worksheets.</p>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="excelFormatted" checked>
+                                            <label class="form-check-label" for="excelFormatted">
+                                                Include formatting
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="excelCharts">
+                                            <label class="form-check-label" for="excelCharts">
+                                                Include summary charts
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-success" onclick="exportExcel()">
+                                        <i class="fas fa-download me-2"></i>Export Excel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-database fa-3x text-info mb-3"></i>
+                                    <h5 class="card-title">JSON Export</h5>
+                                    <p class="card-text">Export complete database as JSON for system backups or migrations.</p>
+                                    <button class="btn btn-info" onclick="exportJSON()">
+                                        <i class="fas fa-download me-2"></i>Export JSON
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-file-pdf fa-3x text-warning mb-3"></i>
+                                    <h5 class="card-title">PDF Report</h5>
+                                    <p class="card-text">Generate comprehensive PDF reports with charts and analytics.</p>
+                                    <button class="btn btn-warning" onclick="exportPDF()">
+                                        <i class="fas fa-download me-2"></i>Export PDF
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export History -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Exports</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Type</th>
+                                    <th>Format</th>
+                                    <th>Size</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-01-20 14:30:00</td>
+                                    <td>Full Database Export</td>
+                                    <td><span class="badge bg-primary">CSV</span></td>
+                                    <td>2.4 MB</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="downloadExport('export_2024_01_20_143000')">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-20 10:15:00</td>
+                                    <td>Monthly Sales Report</td>
+                                    <td><span class="badge bg-warning">PDF</span></td>
+                                    <td>1.8 MB</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="downloadExport('sales_report_2024_01')">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-19 16:45:00</td>
+                                    <td>Inventory Snapshot</td>
+                                    <td><span class="badge bg-success">Excel</span></td>
+                                    <td>956 KB</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="downloadExport('inventory_2024_01_19')">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-19 09:20:00</td>
+                                    <td>Customer Data Export</td>
+                                    <td><span class="badge bg-info">JSON</span></td>
+                                    <td>342 KB</td>
+                                    <td><span class="badge bg-danger">Failed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-warning" onclick="retryExport('customer_export_2024_01_19')">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Privacy Notice -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning">
+                    <h5 class="card-title mb-0 text-white">
+                        <i class="fas fa-shield-alt me-2"></i>Data Privacy & Security
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Important Security Notice</h6>
+                        <ul class="mb-0">
+                            <li>Exported files may contain sensitive customer and business data</li>
+                            <li>Store exported files securely and delete when no longer needed</li>
+                            <li>User data exports are restricted to administrators only</li>
+                            <li>All exports are logged in the audit trail for security monitoring</li>
+                            <li>Consider encrypting sensitive exports before storage or transmission</li>
+                        </ul>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Export Best Practices</h6>
+                            <ul>
+                                <li><i class="fas fa-check text-success me-2"></i>Use secure connections (HTTPS) for downloads</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Verify file integrity after download</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Store backups in encrypted storage</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Regularly test backup restoration</li>
+                            </ul>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6>Compliance Considerations</h6>
+                            <ul>
+                                <li><i class="fas fa-info text-info me-2"></i>GDPR compliance for EU customer data</li>
+                                <li><i class="fas fa-info text-info me-2"></i>CCPA compliance for California residents</li>
+                                <li><i class="fas fa-info text-info me-2"></i>Data retention policy adherence</li>
+                                <li><i class="fas fa-info text-info me-2"></i>Regular security audits recommended</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function exportCSV() {
+    const includeProducts = document.getElementById('includeProducts').checked;
+    const includeOrders = document.getElementById('includeOrders').checked;
+    const includeUsers = document.getElementById('includeUsers').checked;
+
+    if (!includeProducts && !includeOrders && !includeUsers) {
+        alert('Please select at least one data type to export.');
+        return;
+    }
+
+    // Show loading state
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Exporting...';
+    btn.disabled = true;
+
+    // Simulate export process
+    setTimeout(() => {
+        // In a real app, this would redirect to the actual export endpoint
+        window.location.href = `/admin/export-data?format=csv&products=${includeProducts}&orders=${includeOrders}&users=${includeUsers}`;
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }, 1000);
+}
+
+function exportExcel() {
+    const formatted = document.getElementById('excelFormatted').checked;
+    const charts = document.getElementById('excelCharts').checked;
+
+    alert('Excel export feature coming soon! This will generate a formatted Excel file with your data.');
+
+    // In a real app, this would redirect to the Excel export endpoint
+    // window.location.href = `/admin/export-data?format=excel&formatted=${formatted}&charts=${charts}`;
+}
+
+function exportJSON() {
+    alert('JSON export feature coming soon! This will export your complete database as JSON.');
+
+    // In a real app, this would redirect to the JSON export endpoint
+    // window.location.href = '/admin/export-data?format=json';
+}
+
+function exportPDF() {
+    alert('PDF export feature coming soon! This will generate comprehensive PDF reports.');
+
+    // In a real app, this would redirect to the PDF export endpoint
+    // window.location.href = '/admin/export-data?format=pdf';
+}
+
+function downloadExport(exportId) {
+    alert(`Downloading export: ${exportId}`);
+    // In a real app, this would trigger the actual download
+}
+
+function retryExport(exportId) {
+    if (confirm(`Retry failed export: ${exportId}?`)) {
+        alert(`Retrying export: ${exportId}`);
+        // In a real app, this would trigger a retry of the failed export
+    }
+}
+
+// Auto-cleanup old exports (simulate)
+setInterval(() => {
+    console.log('Checking for old exports to clean up...');
+    // In a real app, this would clean up old export files
+}, 300000); // Check every 5 minutes
+</script>
+{% endblock %}

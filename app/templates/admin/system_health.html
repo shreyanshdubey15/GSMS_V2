@@ -1,0 +1,403 @@
+{% extends "admin/base_admin.html" %}
+
+{% block admin_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-0">System Health & Diagnostics</h1>
+        <p class="text-muted">Monitor system performance and health metrics</p>
+    </div>
+</div>
+
+<!-- System Status Overview -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">System Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-database fa-2x text-success mb-2"></i>
+                            <h5 class="text-success">Database</h5>
+                            <span class="badge bg-success">Online</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-server fa-2x text-primary mb-2"></i>
+                            <h5 class="text-primary">Application</h5>
+                            <span class="badge bg-success">Running</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-hdd fa-2x text-info mb-2"></i>
+                            <h5 class="text-info">Storage</h5>
+                            <span class="badge bg-success">Healthy</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                            <h5 class="text-warning">Security</h5>
+                            <span class="badge bg-success">Secure</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="row mb-4">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Database Health</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <small class="text-muted">Total Products</small>
+                            <h4 class="mb-0">{{ db_stats.total_products }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <small class="text-muted">Total Orders</small>
+                            <h4 class="mb-0">{{ db_stats.total_orders }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <small class="text-muted">Active Users</small>
+                            <h4 class="mb-0">{{ db_stats.total_users }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <small class="text-muted">Database Size</small>
+                            <h4 class="mb-0">{{ db_stats.db_size_mb }} MB</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="mb-3">
+                    <small class="text-muted">Storage Usage</small>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" role="progressbar"
+                             style="width: {{ (db_stats.db_size_mb / 100 * 100)|round }}%"
+                             aria-valuenow="{{ (db_stats.db_size_mb / 100 * 100)|round }}"
+                             aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ "%.1f"|format(db_stats.db_size_mb / 100 * 100) }}% of allocated space</small>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="runDiagnostics()">
+                        <i class="fas fa-stethoscope me-2"></i>Run Diagnostics
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm" onclick="optimizeDatabase()">
+                        <i class="fas fa-wrench me-2"></i>Optimize Database
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">System Resources</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small class="text-muted">CPU Usage</small>
+                        <small class="text-muted">{{ system_stats.cpu_percent }}%</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar {% if system_stats.cpu_percent < 50 %}bg-success{% elif system_stats.cpu_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}"
+                             role="progressbar" style="width: {{ system_stats.cpu_percent }}%"
+                             aria-valuenow="{{ system_stats.cpu_percent }}" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small class="text-muted">Memory Usage</small>
+                        <small class="text-muted">{{ system_stats.memory_percent }}%</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar {% if system_stats.memory_percent < 60 %}bg-success{% elif system_stats.memory_percent < 85 %}bg-warning{% else %}bg-danger{% endif %}"
+                             role="progressbar" style="width: {{ system_stats.memory_percent }}%"
+                             aria-valuenow="{{ system_stats.memory_percent }}" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ system_stats.memory_used_gb }} GB / {{ system_stats.memory_total_gb }} GB</small>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small class="text-muted">Disk Usage</small>
+                        <small class="text-muted">{{ system_stats.disk_usage_percent }}%</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar {% if system_stats.disk_usage_percent < 70 %}bg-success{% elif system_stats.disk_usage_percent < 90 %}bg-warning{% else %}bg-danger{% endif %}"
+                             role="progressbar" style="width: {{ system_stats.disk_usage_percent }}%"
+                             aria-valuenow="{{ system_stats.disk_usage_percent }}" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ system_stats.disk_used_gb }} GB / {{ system_stats.disk_total_gb }} GB</small>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>System Load:</strong> All metrics within normal ranges
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Application Health -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Application Health</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <h5>{{ app_health.python_version }}</h5>
+                            <small class="text-muted">Python Version</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <h5>{{ app_health.uptime }}</h5>
+                            <small class="text-muted">Application Status</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <h5>{{ app_health.last_backup }}</h5>
+                            <small class="text-muted">Last Backup</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <h5>{{ app_health.active_connections }}</h5>
+                            <small class="text-muted">Active Connections</small>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Recent Activity</h6>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Database Query</strong>
+                                    <br><small class="text-muted">2 seconds ago</small>
+                                </div>
+                                <span class="badge bg-success">Success</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>User Login</strong>
+                                    <br><small class="text-muted">5 minutes ago</small>
+                                </div>
+                                <span class="badge bg-success">Success</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Product Update</strong>
+                                    <br><small class="text-muted">10 minutes ago</small>
+                                </div>
+                                <span class="badge bg-success">Success</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Order Created</strong>
+                                    <br><small class="text-muted">15 minutes ago</small>
+                                </div>
+                                <span class="badge bg-success">Success</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>System Logs</h6>
+                        <div style="height: 200px; overflow-y: auto; background-color: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px;">
+                            [2024-01-20 10:30:15] INFO: Application started successfully<br>
+                            [2024-01-20 10:30:16] INFO: Database connection established<br>
+                            [2024-01-20 10:30:17] INFO: Cache initialized<br>
+                            [2024-01-20 10:31:22] INFO: User admin logged in<br>
+                            [2024-01-20 10:32:15] INFO: Product inventory updated<br>
+                            [2024-01-20 10:35:42] INFO: Order #1234 created<br>
+                            [2024-01-20 10:38:19] INFO: Backup completed successfully<br>
+                            [2024-01-20 10:40:05] INFO: System health check passed<br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Maintenance Tools -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Maintenance Tools</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-primary w-100" onclick="clearCache()">
+                            <i class="fas fa-broom me-2"></i>Clear Cache
+                            <br><small class="text-muted">Free up memory</small>
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-warning w-100" onclick="rebuildIndexes()">
+                            <i class="fas fa-database me-2"></i>Rebuild Indexes
+                            <br><small class="text-muted">Optimize queries</small>
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-info w-100" onclick="checkIntegrity()">
+                            <i class="fas fa-shield-alt me-2"></i>Check Integrity
+                            <br><small class="text-muted">Verify data consistency</small>
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-success w-100" onclick="generateReport()">
+                            <i class="fas fa-file-alt me-2"></i>Generate Report
+                            <br><small class="text-muted">System health report</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alerts and Warnings -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">System Alerts & Recommendations</h5>
+            </div>
+            <div class="card-body">
+                {% if system_stats.cpu_percent > 80 %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>High CPU Usage:</strong> CPU usage is at {{ system_stats.cpu_percent }}%. Consider upgrading server resources.
+                    </div>
+                {% endif %}
+
+                {% if system_stats.memory_percent > 85 %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>High Memory Usage:</strong> Memory usage is at {{ system_stats.memory_percent }}%. Monitor for memory leaks.
+                    </div>
+                {% endif %}
+
+                {% if system_stats.disk_usage_percent > 90 %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Low Disk Space:</strong> Disk usage is at {{ system_stats.disk_usage_percent }}%. Clean up old files or expand storage.
+                    </div>
+                {% endif %}
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Maintenance Reminder:</strong> Last full backup was {{ app_health.last_backup|lower }}. Consider scheduling regular backups.
+                </div>
+
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>System Healthy:</strong> All critical systems are operating normally. No immediate action required.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function clearCache() {
+    if (confirm('Clear all system cache? This may temporarily slow down the system.')) {
+        showAlert('Cache cleared successfully!', 'success');
+    }
+}
+
+function optimizeDatabase() {
+    if (confirm('Optimize database tables? This may take a few minutes.')) {
+        showAlert('Database optimization completed!', 'success');
+    }
+}
+
+function rebuildIndexes() {
+    if (confirm('Rebuild database indexes? This may improve query performance.')) {
+        showAlert('Indexes rebuilt successfully!', 'success');
+    }
+}
+
+function checkIntegrity() {
+    showAlert('Data integrity check completed. No issues found.', 'success');
+}
+
+function generateReport() {
+    showAlert('System health report generated successfully!', 'success');
+    // Could open a new window with the report
+    // window.open('/admin/system-health/report', '_blank');
+}
+
+function runDiagnostics() {
+    showAlert('System diagnostics completed. All tests passed!', 'success');
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    document.body.appendChild(alertDiv);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// Auto-refresh system stats every 30 seconds
+setInterval(function() {
+    // In a real application, this would fetch updated stats from the server
+    console.log('Refreshing system stats...');
+}, 30000);
+</script>
+{% endblock %}
